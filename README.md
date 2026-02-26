@@ -4,11 +4,11 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/wsnh2022/my-blog.git
+   git clone https://github.com/wsnh2022/blog.git
    ```
 2. Navigate into the project directory:
    ```bash
-   cd my-blog
+   cd blog
    ```
 3. Install dependencies:
    ```bash
