@@ -1,3 +1,9 @@
+---
+title: "My Professional Blog Journey"
+date: "2026-02-27"
+image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643"
+---
+
 # My First Blog Post
 
 Welcome to my blog! This is my first blog post.

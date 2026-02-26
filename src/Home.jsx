@@ -17,16 +17,21 @@ const Home = () => {
             let title = id.split('-').join(' ');
             let date = 'Project Post';
             let content = text;
+            let image = null;
 
             if (text.startsWith('---')) {
                 const parts = text.split('---');
                 if (parts.length >= 3) {
                     const yaml = parts[1];
                     content = parts.slice(2).join('---').trim();
+
                     const titleMatch = yaml.match(/title:\s*(.*)/);
                     const dateMatch = yaml.match(/date:\s*(.*)/);
+                    const imageMatch = yaml.match(/image:\s*(.*)/);
+
                     if (titleMatch) title = titleMatch[1].replace(/['"]/g, '').trim();
                     if (dateMatch) date = dateMatch[1].replace(/['"]/g, '').trim();
+                    if (imageMatch) image = imageMatch[1].replace(/['"]/g, '').trim();
                 }
             } else if (text.startsWith('# ')) {
                 const firstLine = text.split('\n')[0];
@@ -38,6 +43,7 @@ const Home = () => {
                 id,
                 title,
                 date,
+                image,
                 excerpt: content.slice(0, 150).replace(/[#*`]/g, '') + '...',
             };
         });
@@ -55,10 +61,19 @@ const Home = () => {
             <div className="posts-grid">
                 {posts.map((post) => (
                     <Link to={`/post/${post.id}`} key={post.id} className="post-card">
-                        <div className="post-date" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{post.date}</div>
-                        <h2>{post.title}</h2>
-                        <p>{post.excerpt}</p>
-                        <span className="read-more">Read Full Post</span>
+                        <div className="card-image-container">
+                            {post.image ? (
+                                <img src={post.image} alt={post.title} className="card-image" />
+                            ) : (
+                                <div className="card-image" style={{ background: 'var(--header-grad)', opacity: 0.8 }} />
+                            )}
+                        </div>
+                        <div className="card-content">
+                            <div className="post-date" style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>{post.date}</div>
+                            <h2>{post.title}</h2>
+                            <p>{post.excerpt}</p>
+                            <span className="read-more">Read Full Post</span>
+                        </div>
                     </Link>
                 ))}
             </div>
