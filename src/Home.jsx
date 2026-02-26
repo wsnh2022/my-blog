@@ -11,14 +11,16 @@ const Home = () => {
         const postData = Object.keys(postModules).map((path) => {
             const filename = path.split('/').pop();
             const id = filename.replace('.md', '');
-            const text = postModules[path];
+            const text = postModules[path].trim();
 
-            // SIMPLE BROWSER-FRIENDLY FRONTMATTER PARSER
-            let title = id.split('-').join(' ');
+            // DEFAULT VALUES
+            let title = id.split(/[-_]/).join(' ').replace(/\b\w/g, l => l.toUpperCase());
             let date = 'Project Post';
             let content = text;
             let image = null;
+            let isRemote = false;
 
+            // 1. CHECK FOR FRONTMATTER
             if (text.startsWith('---')) {
                 const parts = text.split('---');
                 if (parts.length >= 3) {
@@ -33,10 +35,21 @@ const Home = () => {
                     if (dateMatch) date = dateMatch[1].replace(/['"]/g, '').trim();
                     if (imageMatch) image = imageMatch[1].replace(/['"]/g, '').trim();
                 }
-            } else if (text.startsWith('# ')) {
-                const firstLine = text.split('\n')[0];
-                title = firstLine.replace('# ', '').trim();
-                content = text.split('\n').slice(1).join('\n').trim();
+            }
+
+            // 2. CHECK FOR GITHUB URL IN CONTENT
+            const firstLine = content.split('\n')[0].trim();
+            if (firstLine.startsWith('https://github.com/')) {
+                isRemote = true;
+            }
+
+            // 3. FALLBACK TITLE DETECTION (If not in frontmatter)
+            if (title === id.split(/[-_]/).join(' ').replace(/\b\w/g, l => l.toUpperCase()) || !title) {
+                // Find first # Header in content (ignoring HTML tags at start)
+                const headerMatch = content.match(/^#\s+(.*)/m);
+                if (headerMatch) {
+                    title = headerMatch[1].trim();
+                }
             }
 
             return {
@@ -44,10 +57,12 @@ const Home = () => {
                 title,
                 date,
                 image,
-                excerpt: content.slice(0, 150).replace(/[#*`]/g, '') + '...',
+                isRemote,
+                excerpt: content.slice(0, 150).replace(/[#*`]/g, '').replace(/<[^>]*>?/gm, '').trim() + '...',
             };
         });
 
+        // Sort posts by date (optional, here we just keep finding order)
         setPosts(postData);
     }, []);
 
@@ -55,7 +70,7 @@ const Home = () => {
         <div className="container">
             <header>
                 <h1>My Dynamic Blog</h1>
-                <p>Well-structured, professional, and bloat-free.</p>
+                <p>Live-syncing with GitHub and local Markdown.</p>
             </header>
 
             <div className="posts-grid">
@@ -66,6 +81,22 @@ const Home = () => {
                                 <img src={post.image} alt={post.title} className="card-image" />
                             ) : (
                                 <div className="card-image" style={{ background: 'var(--header-grad)', opacity: 0.8 }} />
+                            )}
+                            {post.isRemote && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '1rem',
+                                    right: '1rem',
+                                    background: 'var(--primary-color)',
+                                    color: 'white',
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '1rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 'bold',
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                                }}>
+                                    Live Sync
+                                </div>
                             )}
                         </div>
                         <div className="card-content">
